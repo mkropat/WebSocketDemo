@@ -11,23 +11,30 @@ namespace WebSocketDemo.Services
 {
     public class HashService : QueueProcessor<HashRequest>
     {
-        public HashService(IProducerConsumerCollection<HashRequest> workQueue, ILoggerFactory loggerFactory)
-            : base(workQueue, loggerFactory.CreateLogger<HashService>()) { }
+        readonly JobStore _store;
+
+        public HashService(JobStore store, IProducerConsumerCollection<HashRequest> workQueue, ILoggerFactory loggerFactory)
+            : base(workQueue, loggerFactory.CreateLogger<HashService>())
+        {
+            _store = store;
+        }
 
         protected override async Task HandleRequest(HashRequest request, CancellationToken cancelToken)
         {
-            request.Job.Status = JobStatus.Pending;
+            _store.Update(request.Job.UpdateStatus(JobStatus.Pending));
 
-            await Task.Delay(TimeSpan.FromSeconds(6));
+            await Task.Delay(TimeSpan.FromSeconds(6), cancelToken);
 
-            request.Job.Result = new HashResult
-            {
-                Md5 = Hash(request.Data, MD5.Create),
-                Sha1 = Hash(request.Data, SHA1.Create),
-                Sha256 = Hash(request.Data, SHA256.Create),
-                Sha512 = Hash(request.Data, SHA512.Create),
-            };
-            request.Job.Status = JobStatus.Complete;
+            var completeJob = request.Job
+                .SetResult(new HashResult
+                {
+                    Md5 = Hash(request.Data, MD5.Create),
+                    Sha1 = Hash(request.Data, SHA1.Create),
+                    Sha256 = Hash(request.Data, SHA256.Create),
+                    Sha512 = Hash(request.Data, SHA512.Create),
+                })
+                .UpdateStatus(JobStatus.Complete);
+            _store.Update(completeJob);
         }
 
         static string Hash(Stream stream, Func<HashAlgorithm> hasherFactory)

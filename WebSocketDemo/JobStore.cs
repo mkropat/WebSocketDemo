@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using WebSocketDemo.Models;
 
@@ -28,6 +29,14 @@ namespace WebSocketDemo
             if (!_jobs.ContainsKey(id))
                 return null;
             return _jobs[id];
+        }
+
+        public void Update(Job newJob)
+        {
+            if (string.IsNullOrEmpty(newJob.Id) || !_jobs.ContainsKey(newJob.Id))
+                throw new ArgumentException("Job ID does not exist. Did you use CreateJob?", nameof(newJob));
+
+            _jobs[newJob.Id] = newJob;
         }
 
         public IEnumerable<Job> List()

@@ -28,6 +28,7 @@ namespace WebSocketDemo
             services.AddSingleton<JobStore>();
             services.AddSingleton<QueueHashJob>(provider => hashQueue.Enqueue);
             services.AddSingleton<IHostedService, HashService>(provider => new HashService(
+                provider.GetRequiredService<JobStore>(),
                 hashQueue,
                 provider.GetRequiredService<ILoggerFactory>()));
         }
