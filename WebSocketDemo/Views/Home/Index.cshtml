@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Demo</title>
+</head>
+<body>
+    <p><label for="dataInput">Data to hash:</label></p>
+    <textarea id="dataInput" name="data" style="height: 150px; width: 600px"></textarea>
+    <p><button class="hashButton">Hash</button></p>
+    <div class="jobHistory"></div>
+    <ul class="results" style="display: none">
+        <li>MD5: <span class="md5"></span></li>
+        <li>SHA-1: <span class="sha1"></span></li>
+        <li>SHA-256: <span class="sha256"></span></li>
+        <li>SHA-512: <span class="sha512"></span></li>
+    </ul>
+
+    <script src="~/elements.js"></script>
+    <script src="~/store.js"></script>
+    <script src="~/app.js"></script>
+    <script>
+        WebSocketDemo.initApp({
+            dataInput: '#dataInput',
+            hashButton: '.hashButton',
+            jobHistory: '.jobHistory',
+            results: '.results',
+        })
+    </script>
+</body>
+</html>

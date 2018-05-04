@@ -41,6 +41,7 @@ namespace WebSocketDemo
             }
 
             app.UseMvc();
+            app.UseStaticFiles();
         }
     }
 }
