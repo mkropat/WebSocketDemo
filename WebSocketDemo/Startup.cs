@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using WebSocketDemo.Controllers;
 using WebSocketDemo.Models;
+using WebSocketDemo.Push;
 using WebSocketDemo.Services;
 
 namespace WebSocketDemo
@@ -31,6 +32,7 @@ namespace WebSocketDemo
                 provider.GetRequiredService<JobStore>(),
                 hashQueue,
                 provider.GetRequiredService<ILoggerFactory>()));
+            services.AddSingleton<IMessageSource, JobToPushMessageAdapter>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -42,6 +44,8 @@ namespace WebSocketDemo
 
             app.UseMvc();
             app.UseStaticFiles();
+            app.UseWebSockets();
+            app.UseMessagePushHandler("/websocket");
         }
     }
 }
