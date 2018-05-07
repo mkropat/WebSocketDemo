@@ -7,9 +7,12 @@ namespace WebSocketDemo.Models
     {
         public static JobResult FromJob(Job job)
         {
-            var result = new JobResult();
-            result.Result = job.Result;
-            result.Status = job.Status.ToString().ToLowerInvariant();
+            var result = new JobResult
+            {
+                Id = job.Id,
+                Result = job.Result,
+                Status = job.Status.ToString().ToLowerInvariant(),
+            };
 
             result.Links.Add(new HypermediaLink
             {
@@ -19,6 +22,8 @@ namespace WebSocketDemo.Models
 
             return result;
         }
+
+        public string Id { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public object Result { get; set; }
