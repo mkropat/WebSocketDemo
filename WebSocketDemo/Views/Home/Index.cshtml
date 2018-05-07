@@ -1,19 +1,35 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="~/app.css" />
     <title>WebSocket Demo</title>
 </head>
 <body>
     <p><label for="dataInput">Data to hash:</label></p>
     <textarea id="dataInput" name="data" style="height: 150px; width: 600px"></textarea>
     <p><button class="hashButton">Hash</button></p>
-    <div class="jobHistory"></div>
-    <ul class="results" style="display: none">
-        <li>MD5: <span class="md5"></span></li>
-        <li>SHA-1: <span class="sha1"></span></li>
-        <li>SHA-256: <span class="sha256"></span></li>
-        <li>SHA-512: <span class="sha512"></span></li>
-    </ul>
+    <div class="results-container">
+        <div class="results-column">
+            <h3>Polling</h3>
+            <div class="pollJobHistory"></div>
+            <ul class="pollResults" style="display: none">
+                <li>MD5: <span class="md5"></span></li>
+                <li>SHA-1: <span class="sha1"></span></li>
+                <li>SHA-256: <span class="sha256"></span></li>
+                <li>SHA-512: <span class="sha512"></span></li>
+            </ul>
+        </div>
+        <div class="results-column">
+            <h3>Push</h3>
+            <div class="pushJobHistory"></div>
+            <ul class="pushResults" style="display: none">
+                <li>MD5: <span class="md5"></span></li>
+                <li>SHA-1: <span class="sha1"></span></li>
+                <li>SHA-256: <span class="sha256"></span></li>
+                <li>SHA-512: <span class="sha512"></span></li>
+            </ul>
+        </div>
+    </div>
 
     <script src="~/elements.js"></script>
     <script src="~/store.js"></script>
@@ -22,8 +38,10 @@
         WebSocketDemo.initApp({
             dataInput: '#dataInput',
             hashButton: '.hashButton',
-            jobHistory: '.jobHistory',
-            results: '.results',
+            pollJobHistory: '.pollJobHistory',
+            pollResult: '.pollResults',
+            pushJobHistory: '.pushJobHistory',
+            pushResult: '.pushResults',
         })
     </script>
 </body>

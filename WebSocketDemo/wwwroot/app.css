@@ -1,0 +1,17 @@
+﻿.results-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 80%;
+}
+
+.results-column {
+    flex-grow: 1;
+    margin-left: 15px;
+    overflow: hidden;
+    width: 50%
+}
+
+.results-column li {
+    white-space: nowrap;
+}
