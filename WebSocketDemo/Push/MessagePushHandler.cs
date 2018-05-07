@@ -42,6 +42,20 @@ namespace WebSocketDemo.Push
                 return;
             }
 
+            var expectedCswshToken = context.Request.Cookies[SetAntiCswshCookie.CookieName];
+            if (string.IsNullOrEmpty(expectedCswshToken) || context.Request.Query[SetAntiCswshCookie.CookieName] != expectedCswshToken)
+            {
+                // We could check the Origin header instead of a token. The token approach is slightly preferred because:
+                // 1. It follows the canonical OWASP anti-CSRF pattern
+                // 2. It doesn't require the application to maintain a whitelist config of allowed Origin values
+
+                await WriteJsonResponse(context.Response, HttpStatusCode.Forbidden, new
+                {
+                    message = "A valid antiCswshToken query string parameter must be passed",
+                });
+                return;
+            }
+
             if (!context.User.Identity.IsAuthenticated)
             {
                 // If the demo were using authentication, we could require authentication like so:

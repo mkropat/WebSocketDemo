@@ -25,7 +25,10 @@ namespace WebSocketDemo
         {
             var hashQueue = new ConcurrentQueue<HashRequest>();
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<SetAntiCswshCookie>();
+            });
             services.AddSingleton<JobStore>();
             services.AddSingleton<QueueHashJob>(provider => hashQueue.Enqueue);
             services.AddSingleton<IHostedService, HashService>(provider => new HashService(
