@@ -5,8 +5,12 @@ using WebSocketDemo.Models;
 
 namespace WebSocketDemo
 {
+    public delegate void JobUpdateHandler(Job oldJob, Job newJob);
+
     public class JobStore
     {
+        public event JobUpdateHandler OnJobUpdated = delegate { };
+
         readonly ConcurrentDictionary<string, Job> _jobs = new ConcurrentDictionary<string, Job>();
         readonly object _lock = new object();
         int _nextId = 1;
@@ -36,7 +40,9 @@ namespace WebSocketDemo
             if (string.IsNullOrEmpty(newJob.Id) || !_jobs.ContainsKey(newJob.Id))
                 throw new ArgumentException("Job ID does not exist. Did you use CreateJob?", nameof(newJob));
 
+            var oldJob = _jobs[newJob.Id];
             _jobs[newJob.Id] = newJob;
+            OnJobUpdated(oldJob, newJob);
         }
 
         public IEnumerable<Job> List()
