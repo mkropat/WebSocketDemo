@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,14 @@ namespace WebSocketDemo
                 options.Filters.Add<SetAntiCswshCookie>();
             });
             services.AddTransient<AntiCswshTokenValidator>();
+
+            services.Configure<CookieAuthenticationOptions>(options =>
+            {
+                options.Events.OnValidatePrincipal += (context) => {
+                    context.HttpContext.Items.Add("AuthExpiresUtc", context.Properties.ExpiresUtc);
+                    return Task.CompletedTask;
+                };
+            });
 
             services.AddSingleton<JobStore>();
             services.AddSingleton<QueueHashJob>(provider => hashQueue.Enqueue);

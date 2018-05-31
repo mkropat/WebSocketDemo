@@ -87,6 +87,14 @@ namespace WebSocketDemo.Push
                     var requestClosing = new CancellationTokenSource();
                     var anyCancel = CancellationTokenSource.CreateLinkedTokenSource(_shutdown, requestClosing.Token).Token;
 
+                    // Shutdown the WebSocket if/when the authenticted session expires
+                    var authExpiresUtc = context.Items["AuthExpiresUtc"] as DateTimeOffset?;
+                    if (authExpiresUtc != null)
+                    {
+                        var sessionTimeout = new CancellationTokenSource(authExpiresUtc.Value - DateTime.UtcNow).Token;
+                        anyCancel = CancellationTokenSource.CreateLinkedTokenSource(anyCancel, sessionTimeout).Token;
+                    }
+
                     var pushTask = Task.Run(async () => {
                         try
                         {
