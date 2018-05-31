@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using WebSocketDemo.Controllers;
 using WebSocketDemo.Models;
@@ -31,7 +30,7 @@ namespace WebSocketDemo
             });
             services.AddSingleton<JobStore>();
             services.AddSingleton<QueueHashJob>(provider => hashQueue.Enqueue);
-            services.AddSingleton<IHostedService, HashService>(provider => new HashService(
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, HashService>(provider => new HashService(
                 provider.GetRequiredService<JobStore>(),
                 hashQueue,
                 provider.GetRequiredService<ILoggerFactory>()));
