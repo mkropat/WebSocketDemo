@@ -28,6 +28,8 @@ namespace WebSocketDemo
             {
                 options.Filters.Add<SetAntiCswshCookie>();
             });
+            services.AddTransient<AntiCswshTokenValidator>();
+
             services.AddSingleton<JobStore>();
             services.AddSingleton<QueueHashJob>(provider => hashQueue.Enqueue);
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, HashService>(provider => new HashService(

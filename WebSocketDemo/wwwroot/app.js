@@ -75,7 +75,7 @@ window.WebSocketDemo.initApp = (selectors) => {
       pushResult: null,
     });
 
-    let hashResult = fetch('/api/hash', { method: 'POST', body: elements.dataInput.value })
+    let hashResult = fetch('/api/hash', { credentials: 'include', method: 'POST', body: elements.dataInput.value })
       .then(response => response.json());
 
     let polling = hashResult
@@ -105,7 +105,7 @@ window.WebSocketDemo.initApp = (selectors) => {
         throw new Error('Expected a rel=self link');
       }
       return delay(1000)
-        .then(() => fetch(selfLink.href))
+        .then(() => fetch(selfLink.href, { credentials: 'include' }))
         .then(r => r.json())
         .then(pollUntilComplete);
     }

@@ -23,14 +23,16 @@ namespace WebSocketDemo.Push
         readonly IMessageSource _messageSource;
         readonly RequestDelegate _next;
         readonly CancellationToken _shutdown;
+        readonly AntiCswshTokenValidator _tokenValidator;
         readonly string _url;
 
-        public MessagePushHandler(RequestDelegate next, IApplicationLifetime appLifetime, ILoggerFactory logFactory, IMessageSource messageSource, string url)
+        public MessagePushHandler(RequestDelegate next, IApplicationLifetime appLifetime, ILoggerFactory logFactory, IMessageSource messageSource, AntiCswshTokenValidator tokenValidator, string url)
         {
             _log = logFactory.CreateLogger<MessagePushHandler>();
             _messageSource = messageSource;
             _next = next;
             _shutdown = appLifetime.ApplicationStopping;
+            _tokenValidator = tokenValidator;
             _url = url;
         }
 
@@ -42,12 +44,14 @@ namespace WebSocketDemo.Push
                 return;
             }
 
-            var expectedCswshToken = context.Request.Cookies[SetAntiCswshCookie.CookieName];
-            if (string.IsNullOrEmpty(expectedCswshToken) || context.Request.Query[SetAntiCswshCookie.CookieName] != expectedCswshToken)
+            var antiCswshToken = context.Request.Query[SetAntiCswshCookie.CookieName];
+            if (!_tokenValidator.IsValid(antiCswshToken, context.User.Identity.Name))
             {
-                // We could check the Origin header instead of a token. The token approach is slightly preferred because:
-                // 1. It follows the canonical OWASP anti-CSRF pattern
-                // 2. It doesn't require the application to maintain a whitelist config of allowed Origin values
+                // We use the "encrypted token" pattern to prevent CSWSH.
+                //
+                // In addition we could check the Origin header against a whitelist. The encrypted double submit cookie
+                // should be good enough, but if you want to maintain an Origin whitelist for your application it can't
+                // hurt to have two layers of defense.
 
                 await WriteJsonResponse(context.Response, HttpStatusCode.Forbidden, new
                 {
@@ -122,7 +126,6 @@ namespace WebSocketDemo.Push
                         break;
                 }
             }
-
         }
 
         static async Task ReceiveMessages(WebSocket socket, CancellationToken cancelToken)
