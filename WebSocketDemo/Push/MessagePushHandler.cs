@@ -18,6 +18,7 @@ namespace WebSocketDemo.Push
     public class MessagePushHandler
     {
         static readonly TimeSpan pushMessagePollingInterval = TimeSpan.FromMilliseconds(100);
+        const WebSocketCloseStatus unauthenticatedStatus = (WebSocketCloseStatus)4001;
 
         readonly ILogger _log;
         readonly IMessageSource _messageSource;
@@ -60,17 +61,6 @@ namespace WebSocketDemo.Push
                 return;
             }
 
-            if (!context.User.Identity.IsAuthenticated)
-            {
-                // If the demo were using authentication, we could require authentication like so:
-
-                //await WriteJsonResponse(context.Response, HttpStatusCode.Forbidden, new
-                //{
-                //    message = "User must authenticate",
-                //});
-                //return;
-            }
-
             if (!context.WebSockets.IsWebSocketRequest)
             {
                 await WriteJsonResponse(context.Response, HttpStatusCode.BadRequest, new
@@ -78,6 +68,19 @@ namespace WebSocketDemo.Push
                     message = "Expected WebSocket request"
                 });
                 return;
+            }
+
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                // If the demo were using authentication, we could require authentication with the following code.
+                // We return a WebSocket close status instead of an HTTP status code here in case the client-side
+                // logic wants to distnguish between connection failure and unauthenticated cases.
+
+                //using (var rejectionSocket = await context.WebSockets.AcceptWebSocketAsync())
+                //{
+                //    await rejectionSocket.CloseAsync(unauthenticatedStatus, "User must authenticate", _shutdown);
+                //    return;
+                //}
             }
 
             try
